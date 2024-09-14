@@ -31,16 +31,16 @@ products: dict[str, list[tuple[str, int]]] = {
 }
 
 categories: list[str] = list(products.keys())
-categories_indices: dict[str, int] = {category: idx for idx, category in enumerate(categories)}
+# categories_indices: dict[str, int] = {category: idx for idx, category in enumerate(categories)}
 
 
-def display_products(products_list: list[tuple[str, int]]) -> None:
+def display_products(products_list: list[tuple[str, int | float]]) -> None:
     print('=== Products ===')
     for item, price in products_list:
         print(f"{item}: {price}")
 
 
-def display_sorted_products(products_list: list[tuple[str, int]], sort_order: str) -> list[tuple[str, int]]:
+def display_sorted_products(products_list: list[tuple[str, int | float]], sort_order: str) -> list[tuple[str, int | float]]:
     products_list_sorted = sorted(products_list, key=lambda product: product[1], reverse='desc' == sort_order)
     display_products(products_list_sorted)
     return products_list_sorted
@@ -50,20 +50,22 @@ def display_categories() -> int | None:
     print('=== Product Categories ===')
     for idx, category in enumerate(categories, start=1):
         print(f"{idx}. {category}")
-    
-    category_str = input('Please enter a category >> ')
-    if category_str in categories_indices.keys() or category_str.isdigit() and 0 <= int(category_str) - 1 < len(categories):
-        category = category_str if category_str in categories_indices.keys() else int(category_str) - 1
+    print()
+
+    category_str = input(f"Please enter a category (an integer in [{1}, {len(categories)}]) >> ")
+    if category_str.isdigit() and 0 <= int(category_str) - 1 < len(categories):
+        category = int(category_str) - 1
     else:
         category = None
+    print()
     return category
 
 
-def add_to_cart(cart: list[tuple[str, int, int]], product: tuple[str, int], quantity: int) -> None:
+def add_to_cart(cart: list[tuple[str, int | float, int]], product: tuple[str, int | float], quantity: int) -> None:
     cart.append(product + (quantity, ))
 
 
-def display_cart(cart: list[tuple[str, int, int]]) -> None:
+def display_cart(cart: list[tuple[str, int | float, int]]) -> None:
     print('=== Cart ===')
     total_cost = 0
     for item, price, quantity in cart:
@@ -73,7 +75,7 @@ def display_cart(cart: list[tuple[str, int, int]]) -> None:
     print(f"Total cost: ${total_cost}")
 
 
-def generate_receipt(name: str, email: str, cart: list[tuple[str, int, int]], total_cost: int, address: str):
+def generate_receipt(name: str, email: str, cart: list[tuple[str, int | float, int]], total_cost: int | float, address: str) -> None:
     pass
 
 
@@ -101,7 +103,7 @@ def main() -> None:
     email = email_str
     print()
 
-    cart: list[tuple[str, int, int]] = []
+    cart: list[tuple[str, int | float, int]] = []
 
     while True:
         category = display_categories()
@@ -123,9 +125,9 @@ def main() -> None:
         print('4. Finish shopping.')
         print()
 
-        choice_str = input('Please select an option [1, 4] >> ')
+        choice_str = input('Please select an option (an integer in [1, 4]) >> ')
         while not (choice_str.isdigit() and 1 <= int(choice_str) <= 4):
-            choice_str = input('Please select an option [1, 4] >> ')
+            choice_str = input('Please select an option (an integer in [1, 4]) >> ')
         choice = int(choice)
         print()
 
@@ -139,11 +141,14 @@ def main() -> None:
             if 0 == len(cart):
                 print('Thank you for using our portal. Hope you buy something from us next time. Have a nice day!')
             else:
-                generate_receipt(name, email, cart, ..., ...)
+                generate_receipt(
+                    name,
+                    email,
+                    cart,
+                    sum(price * quantity for _, price, quantity in cart),
+                    input('Please enter your address >> '),
+                )
             break
-
-    print('Thank you for visiting!')
-    print()
 
 
 if __name__ == "__main__":
