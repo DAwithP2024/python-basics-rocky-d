@@ -1,5 +1,7 @@
+Product = tuple[str, int | float]
+
 # Products available in the store by category
-products: dict[str, list[tuple[str, int]]] = {
+products: dict[str, list[Product]] = {
     "IT Products": [
         ("Laptop", 1000),
         ("Smartphone", 600),
@@ -31,16 +33,15 @@ products: dict[str, list[tuple[str, int]]] = {
 }
 
 categories: list[str] = list(products.keys())
-# categories_indices: dict[str, int] = {category: idx for idx, category in enumerate(categories)}
 
 
-def display_products(products_list: list[tuple[str, int | float]]) -> None:
+def display_products(products_list: list[Product]) -> None:
     print('=== Products ===')
-    for item, price in products_list:
-        print(f"{item}: {price}")
+    for idx, (item, price) in enumerate(products_list, start = 1):
+        print(f"({idx}) {item}: {price}")
 
 
-def display_sorted_products(products_list: list[tuple[str, int | float]], sort_order: str) -> list[tuple[str, int | float]]:
+def display_sorted_products(products_list: list[Product], sort_order: str) -> list[Product]:
     products_list_sorted = sorted(products_list, key=lambda product: product[1], reverse='desc' == sort_order)
     display_products(products_list_sorted)
     return products_list_sorted
@@ -49,20 +50,17 @@ def display_sorted_products(products_list: list[tuple[str, int | float]], sort_o
 def display_categories() -> int | None:
     print('=== Product Categories ===')
     for idx, category in enumerate(categories, start=1):
-        print(f"{idx}. {category}")
+        print(f"({idx}) {category}")
     print()
 
-    category_str = input(f"Please enter a category (an integer in [{1}, {len(categories)}]) >> ")
-    if category_str.isdigit() and 0 <= int(category_str) - 1 < len(categories):
-        category = int(category_str) - 1
-    else:
-        category = None
+    category_input = input(f"Please enter a category (an integer in [{1}, {len(categories)}]) >> ")
+    result = int(category_input) - 1 if category_input.isdigit() and 1 <= int(category_input) <= len(categories) else None
     print()
-    return category
+    return result
 
 
-def add_to_cart(cart: list[tuple[str, int | float, int]], product: tuple[str, int | float], quantity: int) -> None:
-    cart.append(product + (quantity, ))
+def add_to_cart(cart: list[tuple[str, int | float, int]], product: Product, quantity: int) -> None:
+    cart.append(product + (quantity,))
 
 
 def display_cart(cart: list[tuple[str, int | float, int]]) -> None:
@@ -76,7 +74,8 @@ def display_cart(cart: list[tuple[str, int | float, int]]) -> None:
 
 
 def generate_receipt(name: str, email: str, cart: list[tuple[str, int | float, int]], total_cost: int | float, address: str) -> None:
-    pass
+    print('Your items will be delivered in 3 days.')
+    print('Payment will be accepted after successful delivery.')
 
 
 def validate_name(name: str) -> bool:
@@ -88,36 +87,33 @@ def validate_email(email: str) -> bool:
 
 
 def main() -> None:
-    print('Welcome to Rocky\'s online shopping store!')
-    print()
-
-    name_str = input('Please enter your name (First Name and Last Name separated by a space) >> ')
-    while not validate_name(name_str):
-        name_str = input('Please enter your name (First Name and Last Name separated by a space) >> ')
-    name = name_str
-    print()
-
-    email_str = input('Please enter your email >> ')
-    while not validate_email(email_str):
-        email_str = input('Please enter your email >> ')
-    email = email_str
-    print()
+    print('=' * 20)
 
     cart: list[tuple[str, int | float, int]] = []
 
+    print('Hi! Welcome to Rocky\'s online shopping store!')
+    print()
+
+    name_input = input('Please enter your name (First Name and Last Name separated by a space) >> ')
+    while not validate_name(name_input):
+        name_input = input('Please enter your name (First Name and Last Name separated by a space) >> ')
+    name = name_input
+    print()
+
+    email_input = input('Please enter your email >> ')
+    while not validate_email(email_input):
+        email_input = input('Please enter your email >> ')
+    email = email_input
+    print()
+
+    category_input = display_categories()
+    while category_input is None:
+        category_input = display_categories()
+    category = categories[category_input]
+    display_products(products[category])
+    print()
+
     while True:
-        category = display_categories()
-        print()
-
-        # category_str = input('Please enter a category >> ')
-        # while not (category_str in categories_indices.keys() or category_str.isdigit() and 0 <= int(category_str) - 1 < len(categories)):
-        #     category_str = input('Please enter a category >> ')
-        # category = category_str if category_str in categories_indices.keys() else int(category_str) - 1
-        # print()
-
-        display_products(products[category])
-        print()
-
         print('=== Options ===')
         print('1. Select a product to buy.')
         print('2. Sort the products according to the price.')
@@ -125,22 +121,53 @@ def main() -> None:
         print('4. Finish shopping.')
         print()
 
-        choice_str = input('Please select an option (an integer in [1, 4]) >> ')
-        while not (choice_str.isdigit() and 1 <= int(choice_str) <= 4):
-            choice_str = input('Please select an option (an integer in [1, 4]) >> ')
-        choice = int(choice)
+        option_input = input('Please select an option (an integer in [1, 4]) >> ')
+        while not (option_input.isdigit() and 1 <= int(option_input) <= 4):
+            option_input = input('Please select an option (an integer in [1, 4]) >> ')
+        option = int(option_input)
         print()
 
-        if 1 == choice:
-            ...
-        elif 2 == choice:
-            ...
-        elif 3 == choice:
-            continue
-        else:  # elif 4 == choice:
+        if 1 == option:
+            product_input = input(f"Please select a product (an integer in [1, {len(products[category])}]) >> ")
+            while not (product_input.isdigit() and 1 <= int(product_input) <= len(products[category])):
+                product_input = input(f"Please select a product (an integer in [1, {len(products[category])}]) >> ")
+            product = products[category][int(product_input) - 1]
+            print()
+
+            quantity_input = input('Please enter a quantity (a positive integer) >> ')
+            while not (quantity_input.isdigit() and 0 < int(quantity_input)):
+                quantity_input = input('Please enter a quantity (a positive integer) >> ')
+            quantity = int(quantity_input)
+            print()
+
+            add_to_cart(cart, product, quantity)
+        elif 2 == option:
+            print('=== Sorting Order ===')
+            print('(1) Ascending order.')
+            print('(2) Descending order.')
+            print()
+
+            sortorder_input = input('Please select an option (an integer in [1, 2]) >> ')
+            while not (sortorder_input.isdigit() and 1 <= int(sortorder_input) <= 2):
+                sortorder_input = input('Please select an option (an integer in [1, 2]) >> ')
+            sortorder = int(sortorder_input)
+            print()
+
+            products[category] = display_sorted_products(products[category], 'asc' if 1 == sortorder else 'desc')
+            print()
+        elif 3 == option:
+            category_input = display_categories()
+            while category_input is None:
+                category_input = display_categories()
+            category = categories[category_input]
+            display_products(products[category])
+            print()
+        else:  # elif 4 == option:
             if 0 == len(cart):
-                print('Thank you for using our portal. Hope you buy something from us next time. Have a nice day!')
-            else:
+                print('Thank you for using our portal.')
+                print('Hope you buy something from us next time.')
+                print('Have a nice day!')
+            else:  # elif 0 < len(cart):
                 generate_receipt(
                     name,
                     email,
@@ -148,7 +175,9 @@ def main() -> None:
                     sum(price * quantity for _, price, quantity in cart),
                     input('Please enter your address >> '),
                 )
+            print()
             break
+    print('=' * 20)
 
 
 if __name__ == "__main__":
