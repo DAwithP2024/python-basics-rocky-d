@@ -1,5 +1,6 @@
-Product = tuple[str, int | float]
-CartItem = tuple[str, int | float, int]
+Price = int | float
+Product = tuple[str, Price]
+CartItem = tuple[str, Price, int]
 
 # Products available in the store by category
 products: dict[str, list[Product]] = {
@@ -74,7 +75,7 @@ def display_cart(cart: list[CartItem]) -> None:
     print(f"Total cost: ${total_cost}")
 
 
-def generate_receipt(name: str, email: str, cart: list[CartItem], total_cost: int | float, address: str) -> None:
+def generate_receipt(name: str, email: str, cart: list[CartItem], total_cost: Price, address: str) -> None:
     print('=== Shopping Receipt ===')
     print(f"Customer: {name}")
     print(f"Email: {email}")
