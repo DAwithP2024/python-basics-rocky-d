@@ -1,4 +1,5 @@
 Product = tuple[str, int | float]
+CartItem = tuple[str, int | float, int]
 
 # Products available in the store by category
 products: dict[str, list[Product]] = {
@@ -59,23 +60,31 @@ def display_categories() -> int | None:
     return result
 
 
-def add_to_cart(cart: list[tuple[str, int | float, int]], product: Product, quantity: int) -> None:
+def add_to_cart(cart: list[CartItem], product: Product, quantity: int) -> None:
     cart.append(product + (quantity,))
 
 
-def display_cart(cart: list[tuple[str, int | float, int]]) -> None:
-    print('=== Cart ===')
+def display_cart(cart: list[CartItem]) -> None:
+    print('=== Shopping Cart ===')
     total_cost = 0
     for item, price, quantity in cart:
-        tmp = price * quantity
-        print(f"{item} - ${price} x {quantity} = ${tmp}")
-        total_cost += tmp
+        cost = price * quantity
+        print(f"{item} - ${price} x {quantity} = ${cost}")
+        total_cost += cost
     print(f"Total cost: ${total_cost}")
 
 
-def generate_receipt(name: str, email: str, cart: list[tuple[str, int | float, int]], total_cost: int | float, address: str) -> None:
+def generate_receipt(name: str, email: str, cart: list[CartItem], total_cost: int | float, address: str) -> None:
+    print('=== Shopping Receipt ===')
+    print(f"Customer: {name}")
+    print(f"Email: {email}")
+    print('Items Purchased:')
+    for item, price, quantity in cart:
+        print(f"{quantity} x {item} - ${price} = ${price * quantity}")
+    print(f"Total: ${total_cost}")
+    print(f"Delivery Address: {address}")
     print('Your items will be delivered in 3 days.')
-    print('Payment will be accepted after successful delivery.')
+    print('Payment will be accepted upon delivery.')
 
 
 def validate_name(name: str) -> bool:
@@ -89,7 +98,7 @@ def validate_email(email: str) -> bool:
 def main() -> None:
     print('=' * 20)
 
-    cart: list[tuple[str, int | float, int]] = []
+    cart: list[CartItem] = []
 
     print('Hi! Welcome to Rocky\'s online shopping store!')
     print()
@@ -135,7 +144,7 @@ def main() -> None:
             print()
 
             quantity_input = input('Please enter a quantity (a positive integer) >> ')
-            while not (quantity_input.isdigit() and 0 < int(quantity_input)):
+            while not (quantity_input.isdigit() and 1 <= int(quantity_input)):
                 quantity_input = input('Please enter a quantity (a positive integer) >> ')
             quantity = int(quantity_input)
             print()
@@ -167,15 +176,15 @@ def main() -> None:
                 print('Thank you for using our portal.')
                 print('Hope you buy something from us next time.')
                 print('Have a nice day!')
+                print()
             else:  # elif 0 < len(cart):
-                generate_receipt(
-                    name,
-                    email,
-                    cart,
-                    sum(price * quantity for _, price, quantity in cart),
-                    input('Please enter your address >> '),
-                )
-            print()
+                display_cart()
+                print()
+
+                total_cost = sum(price * quantity for _, price, quantity in cart)
+                address = input('Please enter your address >> ')
+                generate_receipt(name, email, cart, total_cost, address)
+                print()
             break
     print('=' * 20)
 
