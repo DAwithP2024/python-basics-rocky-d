@@ -97,7 +97,7 @@ def validate_email(email: str) -> bool:
 
 
 def main() -> None:
-    print('=' * 20)
+    print('=' * 30)
 
     cart: list[CartItem] = []
 
@@ -179,7 +179,7 @@ def main() -> None:
                 print('Have a nice day!')
                 print()
             else:  # elif 0 < len(cart):
-                display_cart()
+                display_cart(cart)
                 print()
 
                 total_cost = sum(price * quantity for _, price, quantity in cart)
@@ -187,7 +187,7 @@ def main() -> None:
                 generate_receipt(name, email, cart, total_cost, address)
                 print()
             break
-    print('=' * 20)
+    print('=' * 30)
 
 
 if __name__ == "__main__":
